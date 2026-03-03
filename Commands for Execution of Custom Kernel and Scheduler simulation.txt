@@ -1,0 +1,31 @@
+1. Go to Project folder
+cd ~/myOS
+
+2.Clean old build
+rm -rf build/*
+
+3.Assemble Multiboot Header
+nasm -f elf32 kernel/multiboot.asm -o build/multiboot.o
+
+4.Compile kernel files
+g++ -m32 -ffreestanding -c kernel/kernel.cpp -o build/kernel.o
+g++ -m32 -ffreestanding -c kernel/scheduler.cpp -o build/scheduler.o
+g++ -m32 -ffreestanding -c kernel/print.cpp -o build/print.o
+
+5.Link kernel ELF
+ld -m elf_i386 -T kernel/linker.ld \
+build/multiboot.o \
+build/kernel.o \
+build/scheduler.o \
+build/print.o \
+-o build/kernel.elf
+
+6.Copy kernel to GRUB ISO folder
+cp build/kernel.elf iso/boot/
+
+7.Create bootable ISO
+grub-mkrescue -o myos.iso iso
+
+8.Run OS
+qemu-system-i386 -cdrom myos.iso
+
